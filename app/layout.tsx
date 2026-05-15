@@ -13,9 +13,7 @@ export const metadata: Metadata = {
     icon: [
       { url: '/logo.svg', type: 'image/svg+xml' },
       { url: '/favicon.png', type: 'image/png' },
-    ],
-    apple: '/favicon.png',
-  },
+    ],  },
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

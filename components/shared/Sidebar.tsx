@@ -2,15 +2,25 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { CalendarDays, BookOpen, ShoppingBasket, ChefHat, Menu, X } from 'lucide-react'
+import { CalendarDays, BookOpen, ShoppingBasket, Menu, X } from 'lucide-react'
 import { useState } from 'react'
 import { cn } from '@/lib/utils'
+import Image from 'next/image'
 
 const navItems = [
   { href: '/planner', label: 'Planner', icon: CalendarDays },
   { href: '/recipes', label: 'Recipes', icon: BookOpen },
   { href: '/pantry', label: 'Pantry', icon: ShoppingBasket },
 ]
+
+function Logo() {
+  return (
+    <div className="flex items-center gap-2.5">
+      <Image src="/logo.svg" alt="Meal Planner logo" width={32} height={32} priority />
+      <span className="font-bold text-[#E07B39] text-lg leading-none">Meal Planner</span>
+    </div>
+  )
+}
 
 export default function Sidebar() {
   const pathname = usePathname()
@@ -41,10 +51,7 @@ export default function Sidebar() {
     <>
       {/* Mobile top bar */}
       <header className="md:hidden fixed top-0 left-0 right-0 z-40 bg-white border-b border-gray-200 flex items-center justify-between px-4 h-14">
-        <div className="flex items-center gap-2 text-[#E07B39] font-bold text-lg">
-          <ChefHat size={22} />
-          Meal Planner
-        </div>
+        <Logo />
         <button onClick={() => setMobileOpen(v => !v)} className="p-2 rounded-lg hover:bg-gray-100">
           {mobileOpen ? <X size={20} /> : <Menu size={20} />}
         </button>
@@ -70,9 +77,8 @@ export default function Sidebar() {
 
       {/* Desktop sidebar */}
       <aside className="hidden md:flex flex-col fixed left-0 top-0 bottom-0 w-56 bg-white border-r border-gray-200 p-4 z-20">
-        <div className="flex items-center gap-2 text-[#E07B39] font-bold text-lg mb-6 px-1">
-          <ChefHat size={22} />
-          Meal Planner
+        <div className="mb-6 px-1">
+          <Logo />
         </div>
         <NavLinks />
       </aside>

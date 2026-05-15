@@ -12,6 +12,24 @@ import {
 import { PANTRY_CATEGORIES } from '@/lib/utils'
 import Link from 'next/link'
 
+const MAIN_KEYWORDS = [
+  'chicken','beef','pork','salmon','shrimp','steak','turkey','lamb','tofu','tempeh',
+  'pasta','spaghetti','rice','potato','potatoes','eggs','egg','fish','tuna','cod','halibut',
+  'pulled pork','ground beef','ground turkey','sausage','bacon','ham',
+]
+const GARNISH_KEYWORDS = [
+  'salt','pepper','black pepper','white pepper','to taste','for serving','for garnish',
+  'garnish','optional','parsley','cilantro','chives','scallion','scallions',
+  'lemon wedge','lime wedge','red pepper flakes','paprika','chili flakes',
+]
+
+// Returns weight: 3 = main ingredient, 1.5 = core, 0.5 = garnish/seasoning
+function ingredientWeight(name: string): number {
+  if (GARNISH_KEYWORDS.some(k => name.includes(k))) return 0.5
+  if (MAIN_KEYWORDS.some(k => name.includes(k))) return 3
+  return 1.5
+}
+
 interface PantryItem {
   id: string
   item_name: string
@@ -112,15 +130,21 @@ export default function PantryPage() {
       const ingredients: { item: string }[] = r.ingredients ?? []
       const matched: string[] = []
       const missing: string[] = []
+      let totalWeight = 0
+      let matchedWeight = 0
+
       for (const ing of ingredients) {
         const name = ing.item?.toLowerCase().trim()
         if (!name) continue
+        const weight = ingredientWeight(name)
+        totalWeight += weight
         const found = pantryNames.some(p => p.includes(name) || name.includes(p))
-        if (found) matched.push(ing.item)
+        if (found) { matched.push(ing.item); matchedWeight += weight }
         else missing.push(ing.item)
       }
-      const total = matched.length + missing.length
-      return { id: r.id, name: r.name, image_url: r.image_url, matchPct: total ? Math.round((matched.length / total) * 100) : 0, matched, missing }
+
+      const matchPct = totalWeight > 0 ? Math.round((matchedWeight / totalWeight) * 100) : 0
+      return { id: r.id, name: r.name, image_url: r.image_url, matchPct, matched, missing }
     }).filter(r => r.matchPct > 0).sort((a, b) => b.matchPct - a.matchPct)
 
     setMatches(results)

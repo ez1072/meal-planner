@@ -32,6 +32,7 @@ const INGREDIENT_KEYWORDS: { category: string; keywords: string[] }[] = [
   { category: 'Shrimp',      keywords: ['shrimp', 'prawn', 'prawns', 'scampi'] },
   { category: 'Steak',       keywords: ['steak', 'ribeye', 'sirloin', 'flank steak', 'skirt steak', 't-bone', 'porterhouse'] },
   { category: 'Beef',        keywords: ['beef', 'ground beef', 'brisket', 'chuck', 'pot roast', 'meatball', 'meatballs', 'hamburger'] },
+  { category: 'Pork',        keywords: ['pork', 'bacon', 'ham', 'prosciutto', 'pancetta', 'sausage', 'chorizo', 'pulled pork', 'pork chop', 'pork belly', 'pork loin', 'ribs'] },
   { category: 'Chicken',     keywords: ['chicken', 'rotisserie chicken', 'turkey', 'poultry'] },
   { category: 'Pasta',       keywords: ['pasta', 'spaghetti', 'penne', 'linguine', 'fettuccine', 'rigatoni', 'lasagna', 'lasagne', 'noodle', 'noodles', 'orzo', 'gnocchi', 'ravioli', 'tortellini', 'macaroni'] },
   { category: 'Vegetarian',  keywords: ['tofu', 'tempeh', 'lentil', 'lentils', 'chickpea', 'chickpeas', 'falafel', 'veggie', 'vegetarian', 'vegan'] },

@@ -10,6 +10,7 @@ import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
 import EditRecipeModal from '@/components/recipes/EditRecipeModal'
 import AddToPlanModal from '@/components/recipes/AddToPlanModal'
+import { formatTime } from '@/lib/utils'
 
 interface Ingredient { quantity: string; unit: string; item: string }
 interface Recipe {
@@ -20,6 +21,7 @@ interface Recipe {
   cuisine: string | null
   main_ingredient: string | null
   difficulty: string | null
+  cook_type: string | null
   time_minutes: number | null
   ingredients: Ingredient[]
   directions: string[]
@@ -92,10 +94,11 @@ export default function RecipeDetailPage({ params }: { params: Promise<{ id: str
           <div className="flex flex-wrap gap-2 items-center">
             {recipe.cuisine && <Badge label={recipe.cuisine} />}
             {recipe.difficulty && <Badge label={recipe.difficulty} />}
+            {recipe.cook_type && <Badge label={recipe.cook_type} colorKey="cookType" />}
             {recipe.main_ingredient && <span className="text-xs text-gray-500">{recipe.main_ingredient}</span>}
             {recipe.time_minutes && (
               <span className="flex items-center gap-1 text-xs text-gray-500">
-                <Clock size={12} /> {recipe.time_minutes} min
+                <Clock size={12} /> {formatTime(recipe.time_minutes)}
               </span>
             )}
           </div>

@@ -12,6 +12,7 @@ CREATE TABLE IF NOT EXISTS public.recipes (
   cuisine         TEXT,
   main_ingredient TEXT,
   difficulty      TEXT CHECK (difficulty IN ('Easy', 'Medium', 'Hard')),
+  cook_type       TEXT CHECK (cook_type IN ('Pan', 'Oven', 'Air Fryer', 'Crockpot')),
   time_minutes    INT,
   ingredients     JSONB DEFAULT '[]',
   directions      JSONB DEFAULT '[]',

@@ -13,6 +13,11 @@ const colorMap: Record<string, string> = {
   Other: 'bg-gray-100 text-gray-600',
   lunch: 'bg-sky-100 text-sky-700',
   dinner: 'bg-violet-100 text-violet-700',
+  cookType: 'bg-teal-50 text-teal-700',
+  Pan: 'bg-teal-50 text-teal-700',
+  Oven: 'bg-teal-50 text-teal-700',
+  'Air Fryer': 'bg-teal-50 text-teal-700',
+  Crockpot: 'bg-teal-50 text-teal-700',
 }
 
 interface BadgeProps {

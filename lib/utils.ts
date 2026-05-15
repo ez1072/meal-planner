@@ -30,3 +30,11 @@ export const CUISINES = ['Italian','Asian','Mexican','Mediterranean','American',
 export const MAIN_INGREDIENTS = ['Chicken','Beef','Steak','Salmon','Shrimp','Pasta','Vegetarian','Other'] as const
 export const DIFFICULTIES = ['Easy','Medium','Hard'] as const
 export const PANTRY_CATEGORIES = ['Produce','Dairy','Meat','Pantry','Frozen','Other'] as const
+
+export function formatTime(minutes: number): string {
+  if (minutes < 60) return `${minutes} min`
+  const h = Math.floor(minutes / 60)
+  const m = minutes % 60
+  return m > 0 ? `${h} hr ${m} min` : `${h} hr`
+}
+export const COOK_TYPES = ['Pan','Oven','Air Fryer','Crockpot'] as const

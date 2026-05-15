@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button'
 import { createClient } from '@/lib/supabase/client'
 import { toast } from 'sonner'
 import { Plus, Minus, Loader2 } from 'lucide-react'
-import { CUISINES, MAIN_INGREDIENTS, DIFFICULTIES } from '@/lib/utils'
+import { CUISINES, MAIN_INGREDIENTS, DIFFICULTIES, COOK_TYPES, cn } from '@/lib/utils'
 
 interface Ingredient { quantity: string; unit: string; item: string }
 
@@ -18,6 +18,7 @@ interface Recipe {
   cuisine: string | null
   main_ingredient: string | null
   difficulty: string | null
+  cook_type: string | null
   time_minutes: number | null
   ingredients: Ingredient[]
   directions: string[]
@@ -38,6 +39,7 @@ export default function EditRecipeModal({ recipe, open, onClose, onSaved }: Prop
   const [cuisine, setCuisine] = useState('')
   const [mainIngredient, setMainIngredient] = useState('')
   const [difficulty, setDifficulty] = useState('')
+  const [cookType, setCookType] = useState('')
   const [timeMinutes, setTimeMinutes] = useState('')
   const [ingredients, setIngredients] = useState<Ingredient[]>([])
   const [directions, setDirections] = useState<string[]>([])
@@ -50,6 +52,7 @@ export default function EditRecipeModal({ recipe, open, onClose, onSaved }: Prop
       setCuisine(recipe.cuisine ?? '')
       setMainIngredient(recipe.main_ingredient ?? '')
       setDifficulty(recipe.difficulty ?? '')
+      setCookType(recipe.cook_type ?? '')
       setTimeMinutes(recipe.time_minutes?.toString() ?? '')
       setIngredients(recipe.ingredients.length ? recipe.ingredients : [{ quantity: '', unit: '', item: '' }])
       setDirections(recipe.directions.length ? recipe.directions : [''])
@@ -67,6 +70,7 @@ export default function EditRecipeModal({ recipe, open, onClose, onSaved }: Prop
       cuisine: cuisine || null,
       main_ingredient: mainIngredient || null,
       difficulty: difficulty || null,
+      cook_type: cookType || null,
       time_minutes: timeMinutes ? parseInt(timeMinutes) : null,
       ingredients: ingredients.filter(i => i.item.trim()),
       directions: directions.filter(d => d.trim()),
@@ -79,7 +83,8 @@ export default function EditRecipeModal({ recipe, open, onClose, onSaved }: Prop
   }
 
   const label = 'block text-xs font-medium text-gray-600 mb-1'
-  const input = 'w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#E07B39] focus:border-transparent'
+  const inputBase = 'border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#E07B39] focus:border-transparent'
+  const input = `w-full ${inputBase}`
   const sel = `${input} bg-white`
 
   return (
@@ -120,6 +125,13 @@ export default function EditRecipeModal({ recipe, open, onClose, onSaved }: Prop
             </select>
           </div>
           <div>
+            <label className={label}>Cook Type</label>
+            <select className={sel} value={cookType} onChange={e => setCookType(e.target.value)}>
+              <option value="">Select...</option>
+              {COOK_TYPES.map(c => <option key={c} value={c}>{c}</option>)}
+            </select>
+          </div>
+          <div>
             <label className={label}>Time (minutes)</label>
             <input type="number" className={input} value={timeMinutes} onChange={e => setTimeMinutes(e.target.value)} min={0} />
           </div>
@@ -130,9 +142,9 @@ export default function EditRecipeModal({ recipe, open, onClose, onSaved }: Prop
           <div className="space-y-2">
             {ingredients.map((ing, i) => (
               <div key={i} className="flex gap-2 items-center">
-                <input className={`${input} w-16 shrink-0`} placeholder="Qty" value={ing.quantity} onChange={e => setIngredients(prev => prev.map((x, j) => j === i ? { ...x, quantity: e.target.value } : x))} />
-                <input className={`${input} w-20 shrink-0`} placeholder="Unit" value={ing.unit} onChange={e => setIngredients(prev => prev.map((x, j) => j === i ? { ...x, unit: e.target.value } : x))} />
-                <input className={`${input} flex-1`} placeholder="Ingredient" value={ing.item} onChange={e => setIngredients(prev => prev.map((x, j) => j === i ? { ...x, item: e.target.value } : x))} />
+                <input className={cn(inputBase, 'w-12 shrink-0')} placeholder="Qty" value={ing.quantity} onChange={e => setIngredients(prev => prev.map((x, j) => j === i ? { ...x, quantity: e.target.value } : x))} />
+                <input className={cn(inputBase, 'w-24 shrink-0')} placeholder="Unit" value={ing.unit} onChange={e => setIngredients(prev => prev.map((x, j) => j === i ? { ...x, unit: e.target.value } : x))} />
+                <input className={cn(inputBase, 'flex-1 min-w-0')} placeholder="Ingredient name" value={ing.item} onChange={e => setIngredients(prev => prev.map((x, j) => j === i ? { ...x, item: e.target.value } : x))} />
                 <Button variant="ghost" size="icon" onClick={() => setIngredients(prev => prev.filter((_, j) => j !== i))} className="text-red-400 hover:text-red-600 hover:bg-red-50 shrink-0">
                   <Minus size={14} />
                 </Button>
@@ -151,7 +163,7 @@ export default function EditRecipeModal({ recipe, open, onClose, onSaved }: Prop
               <div key={i} className="flex gap-2 items-start">
                 <span className="text-xs text-gray-400 font-medium mt-2.5 w-5 shrink-0">{i + 1}.</span>
                 <textarea
-                  className={`${input} flex-1 resize-none`}
+                  className={cn(inputBase, 'flex-1 min-w-0 resize-none')}
                   rows={2}
                   value={step}
                   onChange={e => setDirections(prev => prev.map((x, j) => j === i ? e.target.value : x))}

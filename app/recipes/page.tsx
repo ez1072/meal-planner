@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button'
 import AddRecipeModal from '@/components/recipes/AddRecipeModal'
 import { Clock, ChefHat, Plus, Search, UtensilsCrossed } from 'lucide-react'
 import Link from 'next/link'
-import { CUISINES, MAIN_INGREDIENTS, DIFFICULTIES, cn } from '@/lib/utils'
+import { CUISINES, MAIN_INGREDIENTS, DIFFICULTIES, COOK_TYPES, formatTime, cn } from '@/lib/utils'
 
 interface Recipe {
   id: string
@@ -16,6 +16,7 @@ interface Recipe {
   cuisine: string | null
   main_ingredient: string | null
   difficulty: string | null
+  cook_type: string | null
   time_minutes: number | null
 }
 
@@ -33,6 +34,7 @@ export default function RecipesPage() {
   const [filterCuisines, setFilterCuisines] = useState<string[]>([])
   const [filterIngredients, setFilterIngredients] = useState<string[]>([])
   const [filterDifficulty, setFilterDifficulty] = useState<string[]>([])
+  const [filterCookType, setFilterCookType] = useState<string[]>([])
   const [filterTime, setFilterTime] = useState('')
 
   const fetchRecipes = useCallback(async () => {
@@ -40,7 +42,7 @@ export default function RecipesPage() {
     const supabase = createClient()
     const { data } = await supabase
       .from('recipes')
-      .select('id,name,image_url,cuisine,main_ingredient,difficulty,time_minutes')
+      .select('id,name,image_url,cuisine,main_ingredient,difficulty,cook_type,time_minutes')
       .order('created_at', { ascending: false })
     setRecipes(data ?? [])
     setLoading(false)
@@ -57,6 +59,7 @@ export default function RecipesPage() {
     if (filterCuisines.length && !filterCuisines.includes(r.cuisine ?? '')) return false
     if (filterIngredients.length && !filterIngredients.includes(r.main_ingredient ?? '')) return false
     if (filterDifficulty.length && !filterDifficulty.includes(r.difficulty ?? '')) return false
+    if (filterCookType.length && !filterCookType.includes(r.cook_type ?? '')) return false
     if (filterTime) {
       const t = r.time_minutes ?? 0
       if (filterTime === 'under30' && t >= 30) return false
@@ -124,6 +127,16 @@ export default function RecipesPage() {
             </div>
           </div>
           <div>
+            <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Cook Type</p>
+            <div className="flex gap-2">
+              {COOK_TYPES.map(c => (
+                <button key={c} className={cn(chipBase, filterCookType.includes(c) ? chipActive : chipInactive)} onClick={() => setFilterCookType(prev => toggleChip(prev, c))}>
+                  {c}
+                </button>
+              ))}
+            </div>
+          </div>
+          <div>
             <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Time</p>
             <div className="flex gap-2">
               {TIME_OPTIONS.map(o => (
@@ -134,8 +147,8 @@ export default function RecipesPage() {
             </div>
           </div>
         </div>
-        {(filterCuisines.length || filterIngredients.length || filterDifficulty.length || filterTime) ? (
-          <button className="text-xs text-gray-400 hover:text-gray-600 underline" onClick={() => { setFilterCuisines([]); setFilterIngredients([]); setFilterDifficulty([]); setFilterTime('') }}>
+        {(filterCuisines.length || filterIngredients.length || filterDifficulty.length || filterCookType.length || filterTime) ? (
+          <button className="text-xs text-gray-400 hover:text-gray-600 underline" onClick={() => { setFilterCuisines([]); setFilterIngredients([]); setFilterDifficulty([]); setFilterCookType([]); setFilterTime('') }}>
             Clear all filters
           </button>
         ) : null}
@@ -178,11 +191,12 @@ export default function RecipesPage() {
                 <div className="flex flex-wrap gap-1.5 mb-3">
                   {recipe.cuisine && <Badge label={recipe.cuisine} />}
                   {recipe.difficulty && <Badge label={recipe.difficulty} />}
+                  {recipe.cook_type && <Badge label={recipe.cook_type} />}
                 </div>
                 {recipe.time_minutes && (
                   <div className="flex items-center gap-1 text-xs text-gray-400">
                     <Clock size={12} />
-                    {recipe.time_minutes} min
+                    {formatTime(recipe.time_minutes)}
                   </div>
                 )}
               </div>

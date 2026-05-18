@@ -27,7 +27,7 @@ export function addDays(date: Date, days: number): Date {
 export const DAYS_OF_WEEK = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'] as const
 export const MEAL_TYPES = ['lunch','dinner'] as const
 export const CUISINES = ['Italian','Asian','Mexican','Mediterranean','American','Indian','Other'] as const
-export const MAIN_INGREDIENTS = ['Chicken','Beef','Steak','Pork','Salmon','Shrimp','Pasta','Vegetarian','Other'] as const
+export const MAIN_INGREDIENTS = ['Chicken','Beef','Steak','Pork','Salmon','Shrimp','White Fish','Pasta','Vegetarian','Other'] as const
 export const DIFFICULTIES = ['Easy','Medium','Hard'] as const
 export const PANTRY_CATEGORIES = ['Produce','Dairy','Meat','Pantry','Frozen','Other'] as const
 

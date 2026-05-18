@@ -16,6 +16,7 @@ CREATE TABLE IF NOT EXISTS public.recipes (
   time_minutes    INT,
   ingredients     JSONB DEFAULT '[]',
   directions      JSONB DEFAULT '[]',
+  is_favorite     BOOLEAN DEFAULT FALSE,
   created_at      TIMESTAMPTZ DEFAULT NOW()
 );
 

@@ -5,7 +5,7 @@ import { createClient } from '@/lib/supabase/client'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import AddRecipeModal from '@/components/recipes/AddRecipeModal'
-import { Clock, ChefHat, Plus, Search, UtensilsCrossed } from 'lucide-react'
+import { Clock, ChefHat, Plus, Search, UtensilsCrossed, Heart } from 'lucide-react'
 import Link from 'next/link'
 import { CUISINES, MAIN_INGREDIENTS, DIFFICULTIES, COOK_TYPES, formatTime, cn } from '@/lib/utils'
 
@@ -18,6 +18,7 @@ interface Recipe {
   difficulty: string | null
   cook_type: string | null
   time_minutes: number | null
+  is_favorite: boolean
 }
 
 const TIME_OPTIONS = [
@@ -31,6 +32,7 @@ export default function RecipesPage() {
   const [loading, setLoading] = useState(true)
   const [showAdd, setShowAdd] = useState(false)
   const [search, setSearch] = useState('')
+  const [activeTab, setActiveTab] = useState<'all' | 'favorites'>('all')
   const [filterCuisines, setFilterCuisines] = useState<string[]>([])
   const [filterIngredients, setFilterIngredients] = useState<string[]>([])
   const [filterDifficulty, setFilterDifficulty] = useState<string[]>([])
@@ -42,19 +44,29 @@ export default function RecipesPage() {
     const supabase = createClient()
     const { data } = await supabase
       .from('recipes')
-      .select('id,name,image_url,cuisine,main_ingredient,difficulty,cook_type,time_minutes')
-      .order('created_at', { ascending: false })
+      .select('id,name,image_url,cuisine,main_ingredient,difficulty,cook_type,time_minutes,is_favorite')
+      .order('name', { ascending: true })
     setRecipes(data ?? [])
     setLoading(false)
   }, [])
 
   useEffect(() => { fetchRecipes() }, [fetchRecipes])
 
+  async function toggleFavorite(e: React.MouseEvent, recipe: Recipe) {
+    e.preventDefault()
+    e.stopPropagation()
+    const supabase = createClient()
+    const newVal = !recipe.is_favorite
+    setRecipes(prev => prev.map(r => r.id === recipe.id ? { ...r, is_favorite: newVal } : r))
+    await supabase.from('recipes').update({ is_favorite: newVal }).eq('id', recipe.id)
+  }
+
   function toggleChip(arr: string[], val: string): string[] {
     return arr.includes(val) ? arr.filter(x => x !== val) : [...arr, val]
   }
 
   const filtered = recipes.filter(r => {
+    if (activeTab === 'favorites' && !r.is_favorite) return false
     if (search && !r.name.toLowerCase().includes(search.toLowerCase())) return false
     if (filterCuisines.length && !filterCuisines.includes(r.cuisine ?? '')) return false
     if (filterIngredients.length && !filterIngredients.includes(r.main_ingredient ?? '')) return false
@@ -73,6 +85,8 @@ export default function RecipesPage() {
   const chipActive = 'bg-[#E07B39] border-[#E07B39] text-white'
   const chipInactive = 'bg-white border-gray-200 text-gray-600 hover:border-[#E07B39] hover:text-[#E07B39]'
 
+  const favoritesCount = recipes.filter(r => r.is_favorite).length
+
   return (
     <div className="p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto">
       <div className="flex items-center justify-between mb-6">
@@ -80,6 +94,34 @@ export default function RecipesPage() {
         <Button onClick={() => setShowAdd(true)}>
           <Plus size={16} /> Add Recipe
         </Button>
+      </div>
+
+      {/* Tabs */}
+      <div className="flex gap-1 mb-5 bg-gray-100 rounded-xl p-1 w-fit">
+        <button
+          onClick={() => setActiveTab('all')}
+          className={cn(
+            'px-4 py-1.5 rounded-lg text-sm font-medium transition-colors',
+            activeTab === 'all' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'
+          )}
+        >
+          All
+        </button>
+        <button
+          onClick={() => setActiveTab('favorites')}
+          className={cn(
+            'flex items-center gap-1.5 px-4 py-1.5 rounded-lg text-sm font-medium transition-colors',
+            activeTab === 'favorites' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'
+          )}
+        >
+          <Heart size={13} className={activeTab === 'favorites' ? 'fill-red-500 text-red-500' : ''} />
+          Favorites
+          {favoritesCount > 0 && (
+            <span className={cn('text-xs rounded-full px-1.5 py-0.5 leading-none', activeTab === 'favorites' ? 'bg-red-100 text-red-600' : 'bg-gray-200 text-gray-500')}>
+              {favoritesCount}
+            </span>
+          )}
+        </button>
       </div>
 
       {/* Search */}
@@ -169,14 +211,34 @@ export default function RecipesPage() {
         </div>
       ) : filtered.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-24 text-center">
-          <UtensilsCrossed size={40} className="text-gray-300 mb-3" />
-          <p className="text-gray-500 font-medium">No recipes found</p>
-          <p className="text-gray-400 text-sm mt-1">Try adjusting your filters or add a new recipe</p>
+          {activeTab === 'favorites' ? (
+            <>
+              <Heart size={40} className="text-gray-300 mb-3" />
+              <p className="text-gray-500 font-medium">No favorites yet</p>
+              <p className="text-gray-400 text-sm mt-1">Click the heart on any recipe to save it here</p>
+            </>
+          ) : (
+            <>
+              <UtensilsCrossed size={40} className="text-gray-300 mb-3" />
+              <p className="text-gray-500 font-medium">No recipes found</p>
+              <p className="text-gray-400 text-sm mt-1">Try adjusting your filters or add a new recipe</p>
+            </>
+          )}
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
           {filtered.map(recipe => (
-            <Link key={recipe.id} href={`/recipes/${recipe.id}`} className="group bg-white rounded-2xl overflow-hidden border border-gray-100 shadow-sm hover:shadow-md transition-shadow">
+            <Link key={recipe.id} href={`/recipes/${recipe.id}`} className="group bg-white rounded-2xl overflow-hidden border border-gray-100 shadow-sm hover:shadow-md transition-shadow relative">
+              <button
+                onClick={e => toggleFavorite(e, recipe)}
+                className="absolute top-2 right-2 z-10 p-1.5 rounded-full bg-white/80 backdrop-blur-sm hover:bg-white transition-colors"
+                aria-label={recipe.is_favorite ? 'Remove from favorites' : 'Add to favorites'}
+              >
+                <Heart
+                  size={16}
+                  className={recipe.is_favorite ? 'fill-red-500 text-red-500' : 'text-gray-400 hover:text-red-400'}
+                />
+              </button>
               <div className="h-44 bg-gray-100 relative overflow-hidden">
                 {recipe.image_url ? (
                   <img src={recipe.image_url} alt={recipe.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
